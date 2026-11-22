@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b2e">
+  <meta name="description" content="FuzzyFlow Lab: learn how a Mamdani fuzzy logic controller turns numerical inputs into an understandable control decision.">
+  <title>FuzzyFlow Lab — Interactive Fuzzy Logic Controller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="FuzzyFlow home"><span class="brand-mark">f<span>~</span></span><span>FuzzyFlow <small>LAB</small></span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="nav-link active" href="#simulator">Simulator</a>
+      <a class="nav-link" href="#concepts">Learn</a>
+      <a class="nav-link" href="#surface">Control surface</a>
+      <a class="nav-link" href="#validation">Verify</a>
+    </nav>
+    <span class="topbar-tag"><i></i> Mamdani controller</span>
+  </header>
+
+  <main id="top">
+    <section class="hero section-wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> INTERACTIVE CONTROL SYSTEMS</div>
+        <h1>Make decisions<br>with <em>fuzzy logic.</em></h1>
+        <p class="hero-intro">Watch how a controller turns uncertain, real-world measurements into a precise action — one understandable step at a time.</p>
+        <div class="hero-actions"><button class="button button-primary" type="button" data-scroll="#simulator">Open the simulator <span>↘</span></button><button class="button button-quiet" type="button" data-scroll="#concepts">Learn the basics <span>→</span></button></div>
+        <div class="hero-footnote"><span class="status-live"></span> No backend · Runs in your browser · Reproducible calculations</div>
+      </div>
+      <div class="hero-visual" aria-label="Fuzzy logic flow diagram">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="flow-node node-input"><small>INPUT</small><b>28°C</b><span>Temperature</span></div>
+        <div class="flow-node node-rule"><small>INFERENCE</small><b>IF · THEN</b><span>Rule engine</span></div>
+        <div class="flow-node node-output"><small>OUTPUT</small><b>72.9%</b><span>Fan speed · example output</span></div>
+        <div class="flow-connector connector-one">↗</div><div class="flow-connector connector-two">↗</div>
+        <div class="hero-visual-label">FROM MEASUREMENTS TO ACTION</div>
+      </div>
+    </section>
+
+    <section id="simulator" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">01 / THE WORKBENCH</div><h2>Controller simulator</h2><p>Change the situation, then walk through the controller's reasoning.</p></div><div class="section-heading-side"><span class="tiny-label">ACTIVE MODEL</span><b>2 inputs <span>→</span> 1 output</b></div></div>
+
+      <div class="simulator-grid">
+        <aside class="control-panel panel">
+          <div class="panel-heading"><div><span class="panel-kicker">SET UP YOUR SYSTEM</span><h3>Input controls</h3></div><span class="panel-icon">⌘</span></div>
+          <label class="field-label" for="scenarioSelect">Choose a problem</label>
+          <select id="scenarioSelect" class="select-control"><option value="fan">Cooling fan controller</option><option value="heater">Room heater controller</option></select>
+          <p id="scenarioDescription" class="field-hint">Choose a fan speed from the room temperature and humidity.</p>
+          <div class="control-divider"></div>
+          <div class="slider-heading"><label id="inputControlOneLabel" for="inputOne">Temperature (°C)</label><output id="inputOneValue">28 °C</output></div>
+          <input id="inputOne" type="range" min="0" max="40" step="1" value="28" class="range-control">
+          <div class="range-ends"><span id="inputOneMin">0</span><span>Adjust input</span><span id="inputOneMax">40</span></div>
+          <div class="slider-heading second-slider"><label id="inputControlTwoLabel" for="inputTwo">Humidity (%)</label><output id="inputTwoValue">60 %</output></div>
+          <input id="inputTwo" type="range" min="0" max="100" step="1" value="60" class="range-control range-violet">
+          <div class="range-ends"><span>Low</span><span>Adjust input</span><span>High</span></div>
+          <button id="inputDefaultsButton" class="text-button" type="button">↺ Restore example inputs</button>
+          <div class="control-divider"></div>
+          <div class="panel-subheading"><b>Controller settings</b><span>Change and restart</span></div>
+          <label class="field-label" for="membershipSelect">Fuzzification shape</label>
+          <select id="membershipSelect" class="select-control"><option value="triangular">Triangular / shoulder</option><option value="gaussian">Gaussian</option></select>
+          <p class="field-hint">Controls the shape of each input membership curve.</p>
+          <label class="field-label spaced-label" for="andSelect">Rule AND operator</label>
+          <select id="andSelect" class="select-control"><option value="min">Minimum (min)</option><option value="product">Product (×)</option></select>
+          <p class="field-hint">Combines the two input membership degrees.</p>
+          <label class="field-label spaced-label" for="defuzzSelect">Defuzzification method</label>
+          <select id="defuzzSelect" class="select-control"><option value="centroid">Centroid</option><option value="mom">Mean of maxima</option></select>
+          <p class="field-hint">Turns the final fuzzy set into one number.</p>
+          <button id="restoreDefaultsButton" class="button button-outline button-full" type="button">Restore all defaults</button>
+        </aside>
+
+        <div class="simulation-main">
+          <div class="panel step-panel">
+            <div class="step-panel-top"><div><span class="panel-kicker">FOLLOW THE DECISION</span><h3>Algorithm walkthrough</h3></div><div class="step-status"><span class="status-dot"></span><span id="stageStatus">Paused</span></div></div>
+            <div class="stage-progress-track"><div id="stageProgress" class="stage-progress-fill" style="width:20%"></div></div>
+            <div id="stageSteps" class="stage-steps" aria-label="Algorithm stages">
+              <button type="button" class="stage-step current"><span>1</span><small>Inputs</small></button><button type="button" class="stage-step"><span>2</span><small>Fuzzify</small></button><button type="button" class="stage-step"><span>3</span><small>Rules</small></button><button type="button" class="stage-step"><span>4</span><small>Aggregate</small></button><button type="button" class="stage-step"><span>5</span><small>Defuzzify</small></button>
+            </div>
+            <div class="stage-explainer"><div class="stage-counter" id="stageCounter">Stage 1 of 5</div><h4 id="stageTitle">1. Crisp inputs</h4><p id="stageExplanation">The controller receives ordinary numerical measurements.</p></div>
+            <div class="step-controls"><button id="playButton" class="button button-primary" type="button">▶ Play</button><button id="previousButton" class="button button-control" type="button" disabled>← Back</button><button id="stepButton" class="button button-control" type="button">Next step →</button><button id="resetButton" class="button button-control reset-button" type="button">↺ Reset</button></div>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card output-card"><span class="metric-label" id="outputMetricLabel">Fan speed</span><strong id="liveOutput">—</strong><small id="liveOutputCaption">Complete the steps to calculate</small><div class="metric-spark">⌁</div></article>
+            <article class="metric-card"><span class="metric-label">Active rules</span><strong id="activeRuleCount">—</strong><small>Rules firing above zero</small><div class="metric-spark subtle">∴</div></article>
+            <article class="metric-card"><span class="metric-label">Membership shape</span><strong class="metric-compact" id="membershipMethodText">Triangular</strong><small>Input fuzzification</small><div class="metric-spark subtle">∿</div></article>
+          </div>
+
+          <div class="panel membership-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">STAGE 02 · FUZZIFICATION</span><h3>How inputs become fuzzy</h3></div><span class="mini-badge">LIVE CURVES</span></div>
+            <div class="membership-grid">
+              <div class="membership-block"><div class="chart-title-row"><b id="inputOneTitle">Temperature</b><span>Membership μ(x)</span></div><div id="membershipChartOne" class="svg-chart"></div><div id="membershipValuesOne" class="degree-chips"></div></div>
+              <div class="membership-block"><div class="chart-title-row"><b id="inputTwoTitle">Humidity</b><span>Membership μ(x)</span></div><div id="membershipChartTwo" class="svg-chart"></div><div id="membershipValuesTwo" class="degree-chips"></div></div>
+            </div>
+            <p id="membershipRevealNote" class="panel-footnote">Step forward to reveal the membership degrees.</p>
+          </div>
+
+          <div class="panel rules-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">STAGE 03 · IF–THEN RULE BASE</span><h3>Rules that guide the controller</h3></div><span class="mini-badge">9 RULES</span></div>
+            <div class="rules-legend"><span><i class="dot low"></i> Low</span><span><i class="dot medium"></i> Medium</span><span><i class="dot high"></i> High</span><span class="legend-explain">Select a rule to inspect its strength</span></div>
+            <div id="ruleGrid" class="rule-grid"></div>
+            <div id="ruleDetail" class="rule-detail"><span class="muted">Select a rule card to inspect its two input memberships and firing strength.</span></div>
+          </div>
+
+          <div class="panel aggregate-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">STAGE 04 · OUTPUT FUZZY SET</span><h3>Combine the rule outputs</h3></div><span class="mini-badge">MAX AGGREGATION</span></div>
+            <div id="outputChart" class="output-chart"><div class="chart-placeholder"><span class="placeholder-icon">∿</span><p>The combined output shape will appear here after rule evaluation.</p></div></div>
+            <div class="aggregate-footer"><span id="aggregateSummary">Waiting for the rule strengths.</span><b id="defuzzMethodText">Centroid</b></div>
+          </div>
+
+          <div class="panel calculation-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">LIVE MATHEMATICAL BREAKDOWN</span><h3>Inside the Controller’s Mind</h3></div><span class="mini-badge">REAL VALUES</span></div>
+            <div id="calculationPanel" class="calculation-list"></div>
+          </div>
+
+          <div class="panel result-panel">
+            <div><span class="panel-kicker">STAGE 05 · CRISP RESULT</span><h3>Your controller's decision</h3><p id="resultMetricCaption">Advance to the final stage to reveal the crisp output.</p></div>
+            <div class="result-number"><small id="resultMetricName">Fan speed</small><strong id="resultValue">Pending</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="surface" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">02 / SEE THE BIG PICTURE</div><h2>The fuzzy control surface</h2><p>Every square represents a pair of inputs. Its shade represents the controller's output.</p></div><div class="section-heading-side"><span class="tiny-label">OUTPUT RANGE</span><b id="surfaceRange">0–100%</b></div></div>
+      <div class="surface-layout panel">
+        <div class="surface-copy"><span class="panel-kicker">INPUT PAIRS → OUTPUT</span><h3>One controller.<br><em>Many situations.</em></h3><p>This heatmap is generated by evaluating the actual rule base over a grid of input combinations. It is not a decorative image.</p><div class="surface-axis-label"><span>Horizontal axis</span><b id="surfaceAxisX">Temperature</b></div><div class="surface-axis-label"><span>Vertical axis</span><b id="surfaceAxisY">Humidity</b></div><div class="surface-axis-label"><span>Colour represents</span><b id="surfaceOutputLabel">Fan speed</b></div><div id="surfaceLegend" class="surface-legend"><span>Lower output</span><span class="gradient-bar"></span><span>Higher output</span></div></div>
+        <div class="surface-visual"><div class="surface-topline"><span>CALCULATED CONTROL MAP</span><span>13 × 13 sample grid</span></div><div id="controlSurface" class="control-surface"><div class="chart-placeholder">Building surface…</div></div><p class="surface-caption">Darker teal indicates a lower output; warmer shades indicate a higher output.</p></div>
+      </div>
+    </section>
+
+    <section class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">03 / EXPERIMENT</div><h2>Try a different way of thinking</h2><p>Compare inference settings with the exact same inputs.</p></div><div class="section-heading-side"><span class="tiny-label">CONTROLLED EXPERIMENT</span><b>Same inputs · Different methods</b></div></div>
+      <div class="experiment-intro panel"><div class="experiment-icon">✳</div><div><h3>Method comparison lab</h3><p>Membership shape, rule combination, and defuzzification can change the crisp result. These runs isolate one design choice at a time so you can compare their effect.</p></div></div>
+      <div id="experimentCards" class="experiment-grid"></div>
+      <p id="experimentNote" class="experiment-note"></p>
+    </section>
+
+    <section id="validation" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">04 / CHECK THE MATH</div><h2>Hand calculation check</h2><p>A small known case makes it possible to inspect every number.</p></div><div class="section-heading-side"><span class="tiny-label">DETERMINISTIC EXAMPLE</span><b>One active rule</b></div></div>
+      <div class="validation-layout">
+        <div class="panel validation-manual"><div class="panel-heading"><div><span class="panel-kicker">PRELOADED INPUTS</span><h3>Work it out by hand</h3></div><span class="mini-badge">FAN CONTROLLER</span></div>
+          <div class="validation-inputs"><div><small>Temperature</small><b>20 °C</b></div><div><small>Humidity</small><b>50%</b></div><div><small>AND operator</small><b>Minimum</b></div></div>
+          <div class="manual-step"><span>01</span><div><b>Fuzzify the inputs</b><p>At 20°C, temperature memberships are (Low 0, Medium 1, High 0). At 50% humidity, memberships are (Low 0, Medium 1, High 0).</p></div></div>
+          <div class="manual-step"><span>02</span><div><b>Evaluate the active rule</b><p>IF temperature is Medium AND humidity is Medium THEN fan speed is Medium.</p><div class="math-line">α = min(1, 1) = 1</div></div></div>
+          <div class="manual-step"><span>03</span><div><b>Aggregate the output</b><p>Only the Medium output set is active. Its trapezoid has points (25, 45, 55, 75) and is symmetric about 50.</p><div class="math-line">Area = ½(20)(1) + (10)(1) + ½(20)(1) = 30</div></div></div>
+          <div class="manual-step"><span>04</span><div><b>Defuzzify with the centroid</b><p>Because the aggregated shape is symmetric around 50, its first moment is 30 × 50.</p><div class="math-line">z* = (30 × 50) / 30 = 50%</div></div></div>
+        </div>
+        <div class="panel validation-result"><div class="panel-heading"><div><span class="panel-kicker">ENGINE VS. EXPECTED VALUES</span><h3>Automated comparison</h3></div><span class="check-icon">✓</span></div>
+          <div id="validationStatus"><span class="status-pill">Checking…</span></div>
+          <div id="validationRows" class="validation-rows"></div>
+          <div class="validation-bottom"><span id="validationCheckCount">—</span><button id="runValidationButton" class="button button-outline" type="button">Run check again ↻</button></div>
+          <p class="validation-footnote">The validation case is deliberately preloaded to isolate one rule update. It is a worked controller example, not a random starting state.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="concepts" class="section-wrap section-block">
+      <div class="section-heading"><div><div class="eyebrow">05 / BUILD THE INTUITION</div><h2>Fuzzy logic, made simple</h2><p>Read the ideas in the same order the controller uses them.</p></div><div class="section-heading-side"><span class="tiny-label">LEARNING PATH</span><b>From concept to control</b></div></div>
+      <div class="concept-flow">
+        <article class="concept-card"><div class="concept-number">01</div><div class="concept-graphic concept-input">28°</div><h3>Fuzzification</h3><p>Turn a precise measurement into degrees of belonging. A temperature can be partly Medium and partly High at the same time.</p><span class="concept-tag">Crisp → fuzzy</span></article>
+        <article class="concept-card"><div class="concept-number">02</div><div class="concept-graphic concept-rules">IF <b>THEN</b></div><h3>Rule evaluation</h3><p>Use human-readable rules. For example: IF temperature is High AND humidity is High, THEN fan speed is High.</p><span class="concept-tag">Knowledge base</span></article>
+        <article class="concept-card"><div class="concept-number">03</div><div class="concept-graphic concept-aggregate">∿∩∿</div><h3>Aggregation</h3><p>Combine the output suggestions from all rules that fired. Here, each rule clips an output membership curve and the curves are combined.</p><span class="concept-tag">Many rules → one set</span></article>
+        <article class="concept-card"><div class="concept-number">04</div><div class="concept-graphic concept-defuzz">42.6</div><h3>Defuzzification</h3><p>Convert the combined fuzzy output into an ordinary number that can control a fan, heater, or another real system.</p><span class="concept-tag">Fuzzy → crisp</span></article>
+      </div>
+      <div class="concept-details panel">
+        <div><span class="panel-kicker">THE BASICS</span><h3>What makes a fuzzy controller useful?</h3><p>Many real systems are described with words such as “slightly warm” or “very fast”. Fuzzy logic gives those words precise membership functions and combines them with readable rules.</p></div>
+        <div class="definition-list">
+          <div><b>Membership degree</b><span>A number from 0 to 1 describing how strongly a value belongs to a fuzzy set.</span></div>
+          <div><b>Rule base</b><span>A collection of IF–THEN statements that represents control knowledge.</span></div>
+          <div><b>Inference engine</b><span>The part that calculates how strongly each rule applies and forms output suggestions.</span></div>
+          <div><b>Centroid</b><span>The balance point of the aggregated output membership function.</span></div>
+        </div>
+      </div>
+      <div class="learning-accordion-grid">
+        <details class="learning-card" open><summary>Common fuzzification functions</summary><p><b>Singleton:</b> represents a crisp value as a set that is 1 at that value and 0 elsewhere. <b>Triangular / trapezoidal:</b> use straight segments and are easy to understand. <b>Gaussian:</b> uses a smooth bell-shaped curve. <b>Discrete:</b> defines membership values at selected points.</p></details>
+        <details class="learning-card"><summary>Defuzzification methods</summary><p><b>Centroid:</b> finds the centre of area of the combined output. <b>Mean of maxima:</b> averages all output values that achieve the maximum membership. Threshold-based methods use a chosen membership threshold to select an output region; their exact rule depends on the controller design.</p></details>
+        <details class="learning-card"><summary>What makes a rule base reliable?</summary><p><b>Completeness:</b> relevant input combinations are covered. <b>Consistency:</b> rules should not give contradictory conclusions for the same situation. <b>Validity:</b> the rules should make sense for the physical system. <b>Continuity:</b> small input changes should not create unwanted jumps in control output.</p></details>
+        <details class="learning-card"><summary>Exploration, limitations, and uses</summary><p>Fuzzy controllers are useful when expert rules are available but a precise mathematical model is difficult to build. They are interpretable, but their quality depends on the chosen membership functions and rules. They are used in appliances, process control, vehicles, and decision-support systems.</p></details>
+        <details class="learning-card"><summary>Controller architecture and hierarchical systems</summary><p>A basic fuzzy controller contains input processing, a fuzzifier, a rule base, an inference engine, and a defuzzifier. In a larger system, feedback or filter modules can prepare sensor signals before the controller acts. A hierarchical fuzzy system divides a large problem into smaller fuzzy controllers; this can reduce the size of a rule base, but the interfaces between levels must be designed carefully.</p></details>
+        <details class="learning-card"><summary>Rule interaction and decision tables</summary><p>More than one rule can fire because fuzzy sets overlap. Their output suggestions interact during aggregation. A decision table is a compact way to lay out combinations of input labels and their conclusions; the nine cards in this app are one small decision table. Splitting a complex rule base into separate modules can simplify design, but the combined system should still preserve complete and consistent decisions.</p></details>
+      </div>
+      <div class="algorithm-strip"><div><span class="panel-kicker">MAMDANI CONTROLLER · PSEUDOCODE</span><h3>Five steps, one clear decision</h3></div><ol><li>Read crisp input values.</li><li>Calculate each input's membership degrees.</li><li>Evaluate every IF–THEN rule.</li><li>Clip and aggregate output fuzzy sets.</li><li>Defuzzify the aggregate into a crisp output.</li></ol></div>
+    </section>
+
+    <section class="section-wrap about-section">
+      <div class="about-box"><div><div class="eyebrow">BUILT FOR LEARNING</div><h2>Understand the “why”,<br>not just the answer.</h2><p>FuzzyFlow is a small, self-contained teaching tool. The calculations run locally in your browser, and every chart is generated from the selected controller's actual membership functions and rules.</p></div><div class="about-stats"><div><b>02</b><span>Controller examples</span></div><div><b>09</b><span>IF–THEN rules per example</span></div><div><b>05</b><span>Visible algorithm stages</span></div><div><b>00</b><span>Backend services</span></div></div></div>
+      <footer class="footer"><a class="brand" href="#top"><span class="brand-mark">f<span>~</span></span><span>FuzzyFlow <small>LAB</small></span></a><span>Interactive Fuzzy Logic Controller · Educational project</span><a href="#top">Back to top ↑</a></footer>
+    </section>
+  </main>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
