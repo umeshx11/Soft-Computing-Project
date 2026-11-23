@@ -1,23 +1,27 @@
-# FuzzyFlow Pro — Deployment Package
+# FuzzyFlow Pro
 
-This is the static production build. The website entry point is `index.html` and the required application modules are in `src/`.
+FuzzyFlow Pro is a browser based learning studio for exploring fuzzy logic controllers. It is a static site with no server side runtime, database, API key, package installation, or build step.
 
-## Netlify
-1. Extract this ZIP.
-2. Drag the extracted folder (the one containing `index.html` and `src/`) into Netlify's manual deploy area.
-3. Open the URL Netlify provides.
+## Run locally
 
-## Vercel
-For Vercel, use the complete source project ZIP or its Git repository. Configure:
-- Framework preset: Other
-- Build command: `npm run build`
-- Output directory: `dist`
-- Install command: `npm install`
+Serve the repository root over HTTP so the browser can load the JavaScript modules:
 
-## GitHub Pages
-Use the complete source project and push it to `main`. The included workflow builds and deploys `dist/` through GitHub Actions.
+```bash
+python -m http.server 8000
+```
 
-## Local preview
-With Node.js 20+ and the complete source project, run `npm install`, `npm run build`, and `npm run dev`, then open http://localhost:4173.
+Then open <http://localhost:8000>.
 
-No backend, API key, database, or environment variable is required.
+## Deploy
+
+The site files are ready to serve from the repository root. For GitHub Pages, enable **Settings → Pages → GitHub Actions**. The workflow in `.github/workflows/pages.yml` publishes the root files after pushes to `main`.
+
+For another static host, publish the repository root as the site directory. No build command is needed.
+
+## What's included
+
+- `index.html` — page structure and controls
+- `src/app.js` — interactive walkthrough, charts, and interface behavior
+- `src/engine.js` — fuzzy controller calculations
+- `src/styles.css` — responsive interface styles
+- `DEPLOYMENT.md` — hosting instructions
